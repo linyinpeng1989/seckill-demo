@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--扫描service包(包含子包)下所有使用注解的类型-->
+    <context:component-scan base-package="org.seckill.service"/>
+
+    <!--配置事务管理器(mybatis采用的是JDBC的事务管理器)-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--配置基于注解的声明式事务,默认使用注解来管理事务行为-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!-- 事务的几种方式：
+        ①ProxyFactoryBean + XML      早期使用方式(2.0)
+        ②tx:advice + aop命名空间      一次配置永久生效
+        ③注解@Transactional           注解控制（推荐，在需要事务的地方使用注解进行事务控制）
+    -->
+
+    <!-- Spring事务回滚注意点：
+        ①Spring事务在默认情况下，只在抛出运行期异常时进行回滚，因此需要特别注意某些不当的try catch 的使用
+     -->
+</beans>

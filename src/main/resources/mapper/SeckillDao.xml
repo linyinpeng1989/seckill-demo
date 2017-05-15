@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace命名空间,作用就是对sql进行分类化管理,理解sql隔离
+注意:使用mapper代理方法开发,namespace有特殊重要的作用,namespace等于mapper接口地址-->
+<mapper namespace="org.seckill.dao.SeckillDao">
+    <!--mapper作用:为DAO接口方法提供sql语句配置-->
+
+    <!-- int reduceNumber(@Param("seckilledId") long seckillId, @Param("killTime") Date killTime);
+        多个参数可以自动识别，返回结果肯定为int，也可忽略
+    -->
+    <update id="reduceNumber">
+        UPDATE seckill SET number = number -1
+        WHERE seckill_id = #{seckillId}
+        AND  start_time <![CDATA[ <= ]]> #{killTime}
+        AND  end_time >= #{killTime}
+        AND number >0;
+    </update>
+
+    <!-- Seckill queryById(long seckillId);-->
+    <select id="queryById" resultType="Seckill" parameterType="long">
+        SELECT seckill_id,name,number,start_time,end_time,create_time
+        FROM seckill
+        WHERE seckill_id = #{seckillId}
+    </select>
+
+    <!-- List<Seckill> queryAll(int offset,int limit);-->
+    <select id="queryAll" resultType="Seckill">
+        SELECT seckill_id,name,number,start_time,end_time,create_time
+        FROM seckill
+        ORDER BY create_time DESC
+        limit #{offset},#{limit}
+    </select>
+
+    <!-- MyBatis调用存储过程
+        需要指定字段的数据库类型及参数类型（输入参数或输出参数）
+    -->
+    <select id="killByProcedure" statementType="CALLABLE">
+        CALL execute_seckill(
+          #{seckillId,jdbcType=BIGINT,mode=IN},
+          #{phone,jdbcType=BIGINT,mode=IN},
+          #{killTime,jdbcType=TIMESTAMP,mode=IN},
+          #{result,jdbcType=INTEGER,mode=OUT}
+        )
+    </select>
+</mapper>
